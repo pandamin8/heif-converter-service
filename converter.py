@@ -54,7 +54,14 @@ def convert_heif_to_jpeg():
     output_path = os.path.join(output_dir, imagename)
     image.save(output_path, 'JPEG', optimize=True, quality=8)
 
+    print('----------------------------------------------------\n\n')
+    print('image converted => ' + output_path)
+    print('\n\n----------------------------------------------------')
+
     return jsonify({'converted_image_name': imagename})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    from waitress import serve
+    port = os.getenv('PORT')
+    print('server is running on port : ' + port)
+    serve(app, host="0.0.0.0", port=port)
