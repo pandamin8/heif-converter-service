@@ -52,7 +52,7 @@ def convert_heif_to_jpeg():
 
     # Save the JPEG file
     output_path = os.path.join(output_dir, imagename)
-    image.save(output_path, 'JPEG', optimize=True, quality=8)
+    image.save(output_path, 'JPEG', optimize=True, quality=20)
 
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
