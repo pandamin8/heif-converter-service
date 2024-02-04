@@ -40,7 +40,7 @@ def convert_heif_to_jpeg():
         heif_file.stride,
     )
     
-    # Create the 'heic' directory if it doesn't exist
+    # Create required directories if not exist
     base_dir = os.getenv('IMAGES_BASE_DIRECTORY')
     path = request.form.get('path')
 
@@ -58,7 +58,51 @@ def convert_heif_to_jpeg():
     print('image converted => ' + output_path)
     print('\n\n----------------------------------------------------')
 
-    return jsonify({'converted_image_name': imagename})
+    return jsonify({'image_name': imagename})
+
+@app.route('/compress', methods=['POST'])
+def compress_images():
+    # Check if the POST request has the file part
+    if 'image' not in request.files:
+        return jsonify({'error': 'No image part'})
+    if 'path' not in request.form:
+        return jsonify({'error': 'No path part'})
+
+    file = request.files['image']
+    
+    # If the user does not select a file, the browser submits an empty file without a filename
+    if file.filename == '':
+        return jsonify({'error': 'No selected file'})
+    
+    nameArr = file.filename.split('.')
+    suffix = nameArr[-1]
+
+    # Save the image to a temporary directory
+    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_image:
+        temp_image.write(file.read())
+
+    # Read the image data
+    image = Image.open(temp_image.name)
+    
+    # Create required directories if not exist
+    base_dir = os.getenv('IMAGES_BASE_DIRECTORY')
+    path = request.form.get('path')
+
+    output_dir = base_dir + path
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    imagename = file.filename
+
+    # Save the compressed image file
+    output_path = os.path.join(output_dir, imagename)
+    image.save(output_path, None, optimize=True, quality=30)
+
+    print('----------------------------------------------------\n\n')
+    print('image compressed => ' + output_path)
+    print('\n\n----------------------------------------------------')
+
+    return jsonify({'image_name': imagename})
 
 if __name__ == '__main__':
     from waitress import serve
