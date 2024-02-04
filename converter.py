@@ -79,12 +79,8 @@ def compress_images():
 
     print(suffix)
 
-    # Save the image to a temporary directory
-    with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_image:
-        temp_image.write(file.read())
-
     # Read the image data
-    image = Image.open(temp_image.name)
+    image = Image.open(file)
     
     # Create required directories if not exist
     base_dir = os.getenv('IMAGES_BASE_DIRECTORY')
