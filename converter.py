@@ -77,6 +77,8 @@ def compress_images():
     nameArr = file.filename.split('.')
     suffix = nameArr[-1]
 
+    print(suffix)
+
     # Save the image to a temporary directory
     with tempfile.NamedTemporaryFile(suffix=suffix, delete=False) as temp_image:
         temp_image.write(file.read())
