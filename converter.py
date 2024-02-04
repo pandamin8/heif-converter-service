@@ -98,7 +98,11 @@ def compress_images():
 
     # Save the compressed image file
     output_path = os.path.join(output_dir, imagename)
-    image.save(output_path, None, optimize=True, quality=30)
+
+    if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
+        image.save(output_path, 'JPEG', optimize=True, quality=30)
+    else:
+        image.save(output_path, 'png', optimize=True, quality=30)
 
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
