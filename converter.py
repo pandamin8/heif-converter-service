@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 import os
 import tempfile
 import pyheif
-from PIL import Image
+from PIL import Image, ImageOps
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -94,6 +94,8 @@ def compress_images():
 
     # Save the compressed image file
     output_path = os.path.join(output_dir, imagename)
+
+    image = ImageOps.exif_transpose(image)
 
     if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
         image.save(output_path, 'JPEG', optimize=True, quality=30)
