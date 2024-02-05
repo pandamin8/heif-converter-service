@@ -98,9 +98,9 @@ def compress_images():
     image = ImageOps.exif_transpose(image)
 
     if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
-        image.save(output_path, 'JPEG', optimize=True, quality=30)
+        image.save(output_path, 'JPEG', optimize=True)
     else:
-        image.save(output_path, 'png', optimize=True, quality=30)
+        image.save(output_path, 'png', optimize=True)
 
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
