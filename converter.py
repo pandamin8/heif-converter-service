@@ -1,3 +1,4 @@
+import datetime
 from flask import Flask, request, jsonify
 import os
 import tempfile
@@ -77,8 +78,6 @@ def compress_images():
     nameArr = file.filename.split('.')
     suffix = nameArr[-1]
 
-    print(suffix)
-
     # Read the image data
     image = Image.open(file)
     
@@ -92,8 +91,18 @@ def compress_images():
 
     imagename = file.filename
 
+    currentTime = datetime.datetime.now()
+    timestamp = currentTime.timestamp()
+
+    imageFileName = imagename.split('.')
+    suffix = imageFileName[-1]
+    name = ''.join(imageFileName[:-1])
+    newImageName = name + '_' + str(int(timestamp)) + '.' + suffix
+
+    print(newImageName)
+
     # Save the compressed image file
-    output_path = os.path.join(output_dir, imagename)
+    output_path = os.path.join(output_dir, newImageName)
 
     image = ImageOps.exif_transpose(image)
 
@@ -106,7 +115,20 @@ def compress_images():
     print('image compressed => ' + output_path)
     print('\n\n----------------------------------------------------')
 
-    return jsonify({'image_name': imagename})
+    deleteImage(output_dir, newImageName, name)
+
+    return jsonify({'image_name': newImageName})
+
+def deleteImage(dirPath, currentImage, imagePrefix):
+    files = os.listdir(dirPath)
+
+    for file in files:
+        name = file.split('.')[0]
+        prefix = name.split('_')[0]
+        print(prefix)
+        if prefix == imagePrefix and file != currentImage:
+            os.remove(os.path.join(dirPath, file))
+            print(f"Deleted file: {file}")
 
 if __name__ == '__main__':
     from waitress import serve
