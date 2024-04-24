@@ -55,6 +55,10 @@ def convert_heif_to_jpeg():
     output_path = os.path.join(output_dir, imagename)
     image.save(output_path, 'JPEG', optimize=True, quality=20)
 
+    thumbnail = request.form.get('thumbnail')
+    if thumbnail == 'true':
+        createThumbnail(image, output_dir, imagename)
+
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
     print('\n\n----------------------------------------------------')
@@ -99,8 +103,6 @@ def compress_images():
     name = ''.join(imageFileName[:-1])
     newImageName = name + '_' + str(int(timestamp)) + '.' + suffix
 
-    print(newImageName)
-
     # Save the compressed image file
     output_path = os.path.join(output_dir, newImageName)
 
@@ -114,6 +116,11 @@ def compress_images():
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
     print('\n\n----------------------------------------------------')
+
+    thumbnail = request.form.get('thumbnail')
+    
+    if thumbnail == 'true':
+        createThumbnail(image, output_dir, newImageName)
 
     deleteImage(output_dir, newImageName, name)
 
@@ -129,6 +136,24 @@ def deleteImage(dirPath, currentImage, imagePrefix):
         if prefix == imagePrefix and file != currentImage:
             os.remove(os.path.join(dirPath, file))
             print(f"Deleted file: {file}")
+
+def createThumbnail(image, dir, fileName):
+    image100x100 = image.resize((100, 100))
+    image300x200 = image.resize((300, 200))
+
+    dir100x100 = dir + '/100x100/'
+    dir300x200 = dir + '/300x200/'
+
+    os.makedirs(dir100x100, exist_ok=True)
+    os.makedirs(dir300x200, exist_ok=True)
+
+    image100x100.save(dir100x100 + fileName, optimize=True)
+    image300x200.save(dir300x200 + fileName, optimize=True)
+
+    prefix = fileName.split('_')[0]
+    deleteImage(dir100x100, fileName, prefix)
+    deleteImage(dir300x200, fileName, prefix)
+    
 
 if __name__ == '__main__':
     from waitress import serve
