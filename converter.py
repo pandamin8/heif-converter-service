@@ -53,11 +53,10 @@ def convert_heif_to_jpeg():
 
     # Save the JPEG file
     output_path = os.path.join(output_dir, imagename)
-    image.save(output_path, 'JPEG', optimize=True, quality=20)
 
-    thumbnail = request.form.get('thumbnail')
-    if thumbnail == 'true':
-        createThumbnail(image, output_dir, imagename)
+    image.thumbnail((1200, 800))
+
+    image.save(output_path, 'webp', optimize=True, quality=20)
 
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
@@ -79,9 +78,6 @@ def compress_images():
     if file.filename == '':
         return jsonify({'error': 'No selected file'})
     
-    nameArr = file.filename.split('.')
-    suffix = nameArr[-1]
-
     # Read the image data
     image = Image.open(file)
     
@@ -99,19 +95,21 @@ def compress_images():
     timestamp = currentTime.timestamp()
 
     imageFileName = imagename.split('.')
-    suffix = imageFileName[-1]
     name = ''.join(imageFileName[:-1])
-    newImageName = name + '_' + str(int(timestamp)) + '.' + suffix
+    newImageName = name + '_' + str(int(timestamp)) + '.' + 'webp'
 
     # Save the compressed image file
     output_path = os.path.join(output_dir, newImageName)
 
     image = ImageOps.exif_transpose(image)
+    image.thumbnail((1200, 800))
 
-    if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
-        image.save(output_path, 'JPEG', optimize=True)
-    else:
-        image.save(output_path, 'png', optimize=True)
+    # if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
+    #     image.save(output_path, 'JPEG', optimize=True)
+    # else:
+    #     image.save(output_path, 'png', optimize=True)
+
+    image.save(output_path, 'webp', optimize=True)
 
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
@@ -138,8 +136,9 @@ def deleteImage(dirPath, currentImage, imagePrefix):
             print(f"Deleted file: {file}")
 
 def createThumbnail(image, dir, fileName):
-    image100x100 = image.resize((100, 100))
-    image300x200 = image.resize((300, 200))
+    image100x100 = image.copy()
+    image300x200 = image.copy()
+
 
     dir100x100 = dir + '/100x100/'
     dir300x200 = dir + '/300x200/'
@@ -147,8 +146,11 @@ def createThumbnail(image, dir, fileName):
     os.makedirs(dir100x100, exist_ok=True)
     os.makedirs(dir300x200, exist_ok=True)
 
-    image100x100.save(dir100x100 + fileName, optimize=True)
-    image300x200.save(dir300x200 + fileName, optimize=True)
+    image100x100.thumbnail((150, 150))
+    image300x200.thumbnail((300, 200))
+
+    image100x100.save(dir100x100 + fileName, 'webp', optimize=True)
+    image300x200.save(dir300x200 + fileName, 'webp', optimize=True)
 
     prefix = fileName.split('_')[0]
     deleteImage(dir100x100, fileName, prefix)
