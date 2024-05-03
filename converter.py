@@ -56,7 +56,7 @@ def convert_heif_to_jpeg():
 
     image.thumbnail((1200, 800))
 
-    image.save(output_path, 'webp', optimize=True, quality=20)
+    image.save(output_path, 'jpeg', optimize=True, quality=20)
 
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
@@ -96,7 +96,7 @@ def compress_images():
 
     imageFileName = imagename.split('.')
     name = ''.join(imageFileName[:-1])
-    newImageName = name + '_' + str(int(timestamp)) + '.' + 'webp'
+    newImageName = name + '_' + str(int(timestamp)) + '.' + 'jpeg'
 
     # Save the compressed image file
     output_path = os.path.join(output_dir, newImageName)
@@ -109,7 +109,7 @@ def compress_images():
     # else:
     #     image.save(output_path, 'png', optimize=True)
 
-    image.save(output_path, 'webp', optimize=True)
+    image.save(output_path, 'jpeg', optimize=True)
 
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
@@ -149,8 +149,8 @@ def createThumbnail(image, dir, fileName):
     image100x100.thumbnail((150, 150))
     image300x200.thumbnail((300, 200))
 
-    image100x100.save(dir100x100 + fileName, 'webp', optimize=True)
-    image300x200.save(dir300x200 + fileName, 'webp', optimize=True)
+    image100x100.save(dir100x100 + fileName, 'jpeg', optimize=True)
+    image300x200.save(dir300x200 + fileName, 'jpeg', optimize=True)
 
     prefix = fileName.split('_')[0]
     deleteImage(dir100x100, fileName, prefix)
