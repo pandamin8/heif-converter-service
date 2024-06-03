@@ -109,6 +109,7 @@ def compress_images():
     # else:
     #     image.save(output_path, 'png', optimize=True)
 
+    image = image.convert('RGB')
     image.save(output_path, 'jpeg', optimize=True)
 
     print('----------------------------------------------------\n\n')
