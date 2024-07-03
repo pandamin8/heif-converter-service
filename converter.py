@@ -51,12 +51,25 @@ def convert_heif_to_jpeg():
 
     imagename = f'{os.path.splitext(file.filename)[0]}.jpeg'
 
+    currentTime = datetime.datetime.now()
+    timestamp = currentTime.timestamp()
+
+    imageFileName = imagename.split('.')
+    name = ''.join(imageFileName[:-1])
+    newImageName = name + '_' + str(int(timestamp)) + '.' + 'jpeg'
+
     # Save the JPEG file
-    output_path = os.path.join(output_dir, imagename)
+    output_path = os.path.join(output_dir, newImageName)
 
     image.thumbnail((1200, 800))
 
     image.save(output_path, 'jpeg', optimize=True, quality=20)
+
+    deleteImage(output_dir, newImageName, name)
+
+    thumbnail = request.form.get('thumbnail')
+    if thumbnail == 'true':
+        createThumbnail(image, output_dir, newImageName)
 
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
