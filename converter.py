@@ -75,7 +75,7 @@ def convert_heif_to_jpeg():
     print('image converted => ' + output_path)
     print('\n\n----------------------------------------------------')
 
-    return jsonify({'image_name': imagename})
+    return jsonify({'image_name': newImageName})
 
 @app.route('/compress', methods=['POST'])
 def compress_images():
