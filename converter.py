@@ -49,33 +49,38 @@ def convert_heif_to_jpeg():
 
     os.makedirs(output_dir, exist_ok=True)
 
-    imagename = f'{os.path.splitext(file.filename)[0]}.jpeg'
+    imagename = f'{os.path.splitext(file.filename)[0]}'
 
     currentTime = datetime.datetime.now()
     timestamp = currentTime.timestamp()
 
     imageFileName = imagename.split('.')
-    name = ''.join(imageFileName[:-1])
-    newImageName = name + '_' + str(int(timestamp)) + '.' + 'jpeg'
+    name = ''.join(imageFileName[0])
+    newImageName = name + '_' + str(int(timestamp))
 
     # Save the JPEG file
     output_path = os.path.join(output_dir, newImageName)
 
     image.thumbnail((1200, 800))
 
-    image.save(output_path, 'jpeg', optimize=True, quality=20)
+    thumbnail = request.form.get('thumbnail')
+
+    extension = '.jpeg'
+
+    if thumbnail == 'true':
+        image.save(output_path + '.webp', 'webp', optimize=True, quality=20)
+        createThumbnail(image, output_dir, newImageName)
+        extension = '.webp'
+    else:
+        image.save(output_path + '.jpeg', 'jpeg', optimize=True, quality=20)
 
     deleteImage(output_dir, newImageName, name)
-
-    thumbnail = request.form.get('thumbnail')
-    if thumbnail == 'true':
-        createThumbnail(image, output_dir, newImageName)
 
     print('----------------------------------------------------\n\n')
     print('image converted => ' + output_path)
     print('\n\n----------------------------------------------------')
 
-    return jsonify({'image_name': newImageName})
+    return jsonify({'image_name': newImageName + extension})
 
 @app.route('/compress', methods=['POST'])
 def compress_images():
@@ -109,7 +114,7 @@ def compress_images():
 
     imageFileName = imagename.split('.')
     name = ''.join(imageFileName[:-1])
-    newImageName = name + '_' + str(int(timestamp)) + '.' + 'jpeg'
+    newImageName = name + '_' + str(int(timestamp))
 
     # Save the compressed image file
     output_path = os.path.join(output_dir, newImageName)
@@ -117,26 +122,26 @@ def compress_images():
     image = ImageOps.exif_transpose(image)
     image.thumbnail((1200, 800))
 
-    # if suffix.lower() == 'jpeg' or suffix.lower() == 'jpg':
-    #     image.save(output_path, 'JPEG', optimize=True)
-    # else:
-    #     image.save(output_path, 'png', optimize=True)
-
     image = image.convert('RGB')
-    image.save(output_path, 'jpeg', optimize=True)
+
+    thumbnail = request.form.get('thumbnail')
+    
+    extension = '.jpeg'
+
+    if thumbnail == 'true':
+        image.save(output_path + '.webp', 'webp', optimize=True)
+        createThumbnail(image, output_dir, newImageName)
+        extension = '.webp'
+    else:
+        image.save(output_path + '.jpeg', 'jpeg', optimize=True)
+
+    deleteImage(output_dir, newImageName, name)
 
     print('----------------------------------------------------\n\n')
     print('image compressed => ' + output_path)
     print('\n\n----------------------------------------------------')
 
-    thumbnail = request.form.get('thumbnail')
-    
-    if thumbnail == 'true':
-        createThumbnail(image, output_dir, newImageName)
-
-    deleteImage(output_dir, newImageName, name)
-
-    return jsonify({'image_name': newImageName})
+    return jsonify({'image_name': newImageName + extension})
 
 def deleteImage(dirPath, currentImage, imagePrefix):
     files = os.listdir(dirPath)
@@ -144,8 +149,8 @@ def deleteImage(dirPath, currentImage, imagePrefix):
     for file in files:
         name = file.split('.')[0]
         prefix = name.split('_')[0]
-        print(prefix)
-        if prefix == imagePrefix and file != currentImage:
+        extension = '.' + file.split('.')[-1]
+        if prefix == imagePrefix and file != currentImage + extension:
             os.remove(os.path.join(dirPath, file))
             print(f"Deleted file: {file}")
 
@@ -163,8 +168,8 @@ def createThumbnail(image, dir, fileName):
     image100x100.thumbnail((150, 150))
     image300x200.thumbnail((300, 200))
 
-    image100x100.save(dir100x100 + fileName, 'jpeg', optimize=True)
-    image300x200.save(dir300x200 + fileName, 'jpeg', optimize=True)
+    image100x100.save(dir100x100 + fileName + '.jpeg', 'jpeg', optimize=True)
+    image300x200.save(dir300x200 + fileName + '.webp', 'webp', optimize=True)
 
     prefix = fileName.split('_')[0]
     deleteImage(dir100x100, fileName, prefix)
